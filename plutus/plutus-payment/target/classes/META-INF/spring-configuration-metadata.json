@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "plutus.payment",
+      "type": "rs.miromaric.plutus.payment.config.PlutusPaymentProperties",
+      "sourceType": "rs.miromaric.plutus.payment.config.PlutusPaymentProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "plutus.payment.payment-provider-service-url",
+      "type": "java.lang.String",
+      "sourceType": "rs.miromaric.plutus.payment.config.PlutusPaymentProperties"
+    },
+    {
+      "name": "plutus.payment.user-service-url",
+      "type": "java.lang.String",
+      "sourceType": "rs.miromaric.plutus.payment.config.PlutusPaymentProperties"
+    },
+    {
+      "name": "plutus.payment.wallet-service-url",
+      "type": "java.lang.String",
+      "sourceType": "rs.miromaric.plutus.payment.config.PlutusPaymentProperties"
+    }
+  ],
+  "hints": []
+}

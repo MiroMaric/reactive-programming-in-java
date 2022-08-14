@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="libpaymentprovider" />
+        <module name="plutus-examples" />
+        <module name="plutus-common" />
+        <module name="plutus-common-reactive" />
+        <module name="libwallet" />
+        <module name="libcommon" />
+        <module name="plutus-payment" />
+        <module name="libuserreactive" />
+        <module name="payment-provider" />
+        <module name="libuser" />
+        <module name="plutus-user-reactive" />
+        <module name="libpayment" />
+        <module name="plutus-user" />
+        <module name="plutus-wallet" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="libcommon" target="18" />
+      <module name="libpayment" target="18" />
+      <module name="libpaymentprovider" target="18" />
+      <module name="libuser" target="18" />
+      <module name="libuserreactive" target="16" />
+      <module name="libwallet" target="18" />
+      <module name="payment-provider" target="18" />
+      <module name="plutus" target="18" />
+      <module name="plutus-common" target="18" />
+      <module name="plutus-common-reactive" target="16" />
+      <module name="plutus-examples" target="18" />
+      <module name="plutus-payment" target="18" />
+      <module name="plutus-user" target="18" />
+      <module name="plutus-user-reactive" target="16" />
+      <module name="plutus-wallet" target="18" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="libcommon" options="-parameters" />
+      <module name="libpayment" options="-parameters" />
+      <module name="libpaymentprovider" options="-parameters" />
+      <module name="libuser" options="-parameters" />
+      <module name="libuserreactive" options="-parameters" />
+      <module name="libwallet" options="-parameters" />
+      <module name="payment-provider" options="-parameters" />
+      <module name="plutus-common" options="-parameters" />
+      <module name="plutus-common-reactive" options="-parameters" />
+      <module name="plutus-examples" options="-parameters" />
+      <module name="plutus-payment" options="-parameters" />
+      <module name="plutus-user" options="-parameters" />
+      <module name="plutus-user-reactive" options="-parameters" />
+      <module name="plutus-wallet" options="-parameters" />
+    </option>
+  </component>
+</project>

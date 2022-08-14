@@ -1,0 +1,6 @@
+rs/miromaric/plutus/wallet/WalletApplication.class
+rs/miromaric/plutus/wallet/entity/WalletEntity.class
+rs/miromaric/plutus/wallet/service/WalletServiceImpl.class
+rs/miromaric/plutus/wallet/config/WalletConfig.class
+rs/miromaric/plutus/wallet/controller/WalletController.class
+rs/miromaric/plutus/wallet/repository/WalletRepository.class

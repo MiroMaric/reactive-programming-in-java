@@ -1,0 +1,6 @@
+rs/miromaric/plutus/wallet/controller/WalletControllerTest.class
+rs/miromaric/plutus/wallet/data/WalletTestData.class
+rs/miromaric/plutus/wallet/WalletApplicationTests.class
+rs/miromaric/plutus/wallet/config/PlutusPostgreSQLTestContainer.class
+rs/miromaric/plutus/wallet/service/WalletServiceImplTest.class
+rs/miromaric/plutus/wallet/config/PlutusCommonTestConfig.class
