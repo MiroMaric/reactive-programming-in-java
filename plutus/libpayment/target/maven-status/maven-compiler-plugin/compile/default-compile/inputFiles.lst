@@ -2,6 +2,8 @@
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/payout/PayOutRequest.java
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/payin/PayInStatus.java
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/payout/PayOutStatus.java
+/home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/service/TransferService.java
+/home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/Transfer.java
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/payout/PayOutResponse.java
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/model/payin/PayInRequest.java
 /home/miro/Private/fon/reactive-programming-in-java/plutus/libpayment/src/main/java/rs/miromaric/plutus/payment/service/PaymentService.java

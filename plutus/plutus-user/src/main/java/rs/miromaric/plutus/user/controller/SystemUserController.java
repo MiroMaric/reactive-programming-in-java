@@ -25,7 +25,8 @@ public class SystemUserController {
     }
 
     @PutMapping("/{id}")
-    public SystemUser get(@RequestBody SystemUser systemUser, @PathVariable("id") String id) {
+    public SystemUser update(@RequestBody SystemUser systemUser,
+                             @PathVariable("id") String id) {
         systemUser = systemUser.copy().withUuid(id);
         return systemUserService.update(systemUser);
     }

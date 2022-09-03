@@ -12,11 +12,10 @@ import rs.miromaric.plutus.payment.model.payout.PayOutResponse;
 import rs.miromaric.plutus.payment.service.PaymentService;
 
 @RestController
-@RequestMapping("api/v1/payment")
+@RequestMapping("api/v1/payments")
 @AllArgsConstructor
 @Slf4j
 public class PaymentController {
-
     private final PaymentService paymentService;
 
     @RequestMapping("/payIn")
@@ -28,5 +27,4 @@ public class PaymentController {
     public PayOutResponse payOut(@RequestBody PayOutRequest payOutRequest) {
         return paymentService.payOut(payOutRequest);
     }
-
 }

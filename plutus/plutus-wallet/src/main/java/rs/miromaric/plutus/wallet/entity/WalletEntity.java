@@ -1,7 +1,7 @@
 package rs.miromaric.plutus.wallet.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import rs.miromaric.plutus.common.entity.PlutusEntity;
 import rs.miromaric.plutus.common.entity.VersionedPlutusEntity;
 import rs.miromaric.plutus.wallet.model.ImmutableWallet;
@@ -17,8 +17,8 @@ import java.math.BigDecimal;
 @Table(name = "WALLET", indexes = {
         @Index(name = "wallet_user_idx", columnList = "user_uuid", unique = true)
 })
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 public class WalletEntity extends VersionedPlutusEntity implements PlutusEntity<Wallet>{
 
     @Column(name = "USER_UUID", nullable = false)

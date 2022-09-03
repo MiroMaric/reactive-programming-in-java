@@ -29,7 +29,7 @@ import static rs.miromaric.plutus.wallet.data.WalletTestData.MIRO_WALLET;
 
 @WebMvcTest(WalletController.class)
 @Import(PlutusCommonTestConfig.class)
-public class WalletControllerTest {
+class WalletControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -41,7 +41,7 @@ public class WalletControllerTest {
     WalletService walletService;
 
     @Test
-    public void saveWallet() throws Exception {
+    void saveWallet() throws Exception {
         when(walletService.save(MIRO_WALLET)).thenReturn(MIRO_WALLET);
         mockMvc.perform(post("/api/v1/wallets/")
                                 .content(mapper.writeValueAsString(MIRO_WALLET))
@@ -52,7 +52,7 @@ public class WalletControllerTest {
 
 
     @Test
-    public void getWallet() throws Exception {
+    void getWallet() throws Exception {
         when(walletService.get(MIRO_WALLET.getUuid())).thenReturn(MIRO_WALLET);
         mockMvc.perform(get("/api/v1/wallets/".concat(MIRO_WALLET.getUuid()))
                                 .contentType(MediaType.APPLICATION_JSON))
@@ -61,7 +61,7 @@ public class WalletControllerTest {
     }
 
     @Test
-    public void updateWallet() throws Exception {
+    void updateWallet() throws Exception {
         Wallet updatedWallet = MIRO_WALLET.copy().withLabel("MiroM Wallet");
         when(walletService.update(updatedWallet)).thenReturn(updatedWallet);
         mockMvc.perform(put("/api/v1/wallets/".concat(updatedWallet.getUuid()))
@@ -72,7 +72,7 @@ public class WalletControllerTest {
     }
 
     @Test
-    public void deleteWallet() throws Exception {
+    void deleteWallet() throws Exception {
         when(walletService.delete(MIRO_WALLET.getUuid())).thenReturn(MIRO_WALLET);
         mockMvc.perform(delete("/api/v1/wallets/".concat(MIRO_WALLET.getUuid()))
                                 .content(mapper.writeValueAsString(MIRO_WALLET))
@@ -82,7 +82,7 @@ public class WalletControllerTest {
     }
 
     @Test
-    public void payIn() throws Exception {
+    void payIn() throws Exception {
         WPayInRequest request = WPayInRequest.of(MIRO_WALLET.getUuid(), BigDecimal.TEN);
         WPayInResponse response = WPayInResponse.of(MIRO_WALLET, WPayInStatus.COMPLETED);
         when(walletService.payIn(request)).thenReturn(response);
@@ -94,7 +94,7 @@ public class WalletControllerTest {
     }
 
     @Test
-    public void payOut() throws Exception {
+    void payOut() throws Exception {
         WPayOutRequest request = WPayOutRequest.of(MIRO_WALLET.getUuid(), BigDecimal.TEN);
         WPayOutResponse response = WPayOutResponse.of(MIRO_WALLET, WPayOutStatus.COMPLETED);
         when(walletService.payOut(request)).thenReturn(response);

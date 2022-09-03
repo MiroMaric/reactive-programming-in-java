@@ -5,6 +5,7 @@ rs/miromaric/plutus/payment/model/payin/ImmutablePayInRequest$Builder.class
 rs/miromaric/plutus/payment/model/payout/ImmutablePayOutRequest$Json.class
 rs/miromaric/plutus/payment/model/payin/PayInRequest.class
 rs/miromaric/plutus/payment/model/payin/PayInResponse.class
+rs/miromaric/plutus/payment/model/Transfer.class
 rs/miromaric/plutus/payment/model/payout/ImmutablePayOutResponse$Builder.class
 rs/miromaric/plutus/payment/model/payout/PayOutStatus.class
 rs/miromaric/plutus/payment/model/payout/ImmutablePayOutResponse.class
@@ -17,3 +18,4 @@ rs/miromaric/plutus/payment/model/payin/ImmutablePayInRequest.class
 rs/miromaric/plutus/payment/model/payin/ImmutablePayInResponse$Builder.class
 rs/miromaric/plutus/payment/model/payout/PayOutRequest.class
 rs/miromaric/plutus/payment/model/payout/ImmutablePayOutResponse$Json.class
+rs/miromaric/plutus/payment/service/TransferService.class

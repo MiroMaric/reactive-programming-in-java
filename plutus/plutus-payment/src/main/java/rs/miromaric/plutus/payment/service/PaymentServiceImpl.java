@@ -3,6 +3,7 @@ package rs.miromaric.plutus.payment.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import rs.miromaric.plutus.payment.model.Transfer;
 import rs.miromaric.plutus.payment.model.payin.PayInRequest;
 import rs.miromaric.plutus.payment.model.payin.PayInResponse;
 import rs.miromaric.plutus.payment.model.payin.PayInStatus;
@@ -30,6 +31,7 @@ import rs.miromaric.plutus.wallet.model.payout.WPayOutResponse;
 import rs.miromaric.plutus.wallet.model.payout.WPayOutStatus;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -39,11 +41,11 @@ public class PaymentServiceImpl implements PaymentService {
     private final SystemUserService systemUserService;
     private final WalletService walletService;
     private final PaymentProviderService paymentProviderService;
+    private final TransferService transferService;
 
     @Override
     public PayInResponse payIn(PayInRequest payInRequest) {
-        String merchantRefUuid = "merchantRefUuid";
-        String plutusAccountId = "plutusAccountId";
+        String merchantRefUuid = UUID.randomUUID().toString();
 
         SystemUser systemUser = systemUserService.get(payInRequest.getUserId());
         log.debug(systemUser.toString());
@@ -58,7 +60,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         DebitRequest debitRequest = ImmutableDebitRequest
                 .builder()
-                .accountId(plutusAccountId)
+                .accountId(payInRequest.PLUTUS_ACCOUNT_ID)
                 .merchantRefNum(merchantRefUuid)
                 .amount(payInRequest.getAmount())
                 .token(payInRequest.getToken())
@@ -72,6 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
             log.debug(wPayInResponse.toString());
 
             if (wPayInResponse.getStatus().equals(WPayInStatus.COMPLETED)) {
+                transferService.save(createTransfer(payInRequest, merchantRefUuid));
                 return PayInResponse.of(merchantRefUuid, PayInStatus.COMPLETED);
             }
 
@@ -81,8 +84,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PayOutResponse payOut(PayOutRequest payOutRequest) {
-        String merchantRefUuid = "merchantRefUuid";
-        String plutusAccountId = "plutusAccountId";
+        String merchantRefUuid = UUID.randomUUID().toString();
 
         SystemUser systemUser = systemUserService.get(payOutRequest.getUserId());
         log.debug(systemUser.toString());
@@ -97,7 +99,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         CreditRequest creditRequest = ImmutableCreditRequest
                 .builder()
-                .accountId(plutusAccountId)
+                .accountId(payOutRequest.PLUTUS_ACCOUNT_ID)
                 .merchantRefNum(merchantRefUuid)
                 .amount(payOutRequest.getAmount())
                 .token(payOutRequest.getToken())
@@ -111,11 +113,28 @@ public class PaymentServiceImpl implements PaymentService {
             log.debug(wwPayOutResponse.toString());
 
             if (wwPayOutResponse.getStatus().equals(WPayOutStatus.COMPLETED)) {
+                transferService.save(createTransfer(payOutRequest, merchantRefUuid));
                 return PayOutResponse.of(merchantRefUuid, PayOutStatus.COMPLETED);
             }
 
         }
         return PayOutResponse.of(merchantRefUuid, PayOutStatus.FAILED);
+    }
+
+    private Transfer createTransfer(PayInRequest payInRequest, String merchantRefUuid) {
+        return new Transfer(
+                UUID.randomUUID().toString(),
+                merchantRefUuid,
+                payInRequest.getWalletId(),
+                payInRequest.getAmount());
+    }
+
+    private Transfer createTransfer(PayOutRequest payOutRequest, String merchantRefUuid) {
+        return new Transfer(
+                UUID.randomUUID().toString(),
+                merchantRefUuid,
+                payOutRequest.getWalletId(),
+                payOutRequest.getAmount().negate());
     }
 
     private Optional<PayInStatus> checkPayInValidityOfUserAndHisWallet(SystemUser systemUser, Wallet wallet) {

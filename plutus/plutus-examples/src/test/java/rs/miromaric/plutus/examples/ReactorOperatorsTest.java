@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Timed;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.util.List;
@@ -18,220 +18,212 @@ import java.util.stream.Stream;
 class ReactorOperatorsTest {
 
     @Test
-    void justReactor() {
-        Flux<Integer> flux = Flux.just(1, 2, 3);
+    void creationOperators() {
+        Integer[] numbers = {1, 2, 3};
 
-        StepVerifier.create(flux)
-                .expectNext(1, 2, 3)
-                .expectComplete()
-                .verify();
+        Flux<Integer> just = Flux.just(numbers);
+        StepVerifier.create(just).expectNext(numbers).verifyComplete();
+
+        Flux<Integer> fromIterable = Flux.fromIterable(List.of(numbers));
+        StepVerifier.create(fromIterable).expectNext(numbers).verifyComplete();
+
+        Flux<Integer> fromStream = Flux.fromStream(Stream.of(numbers));
+        StepVerifier.create(fromStream).expectNext(numbers).verifyComplete();
+
+        Flux<Integer> fromArray = Flux.fromArray(numbers);
+        StepVerifier.create(fromArray).expectNext(numbers).verifyComplete();
+
+        Flux<Integer> range = Flux.range(1, 3);
+        StepVerifier.create(range).expectNext(numbers).verifyComplete();
+
+        Flux<Integer> from = Flux.from(Mono.just(1));
+        StepVerifier.create(from).expectNext(1).verifyComplete();
+
+        Flux<Integer> empty = Flux.empty();
+        StepVerifier.create(empty).verifyComplete();
+
+        Flux<Integer> error = Flux.error(Exception::new);
+        StepVerifier.create(error).expectError().verify();
     }
 
     @Test
-    void fromIterable() {
-        Flux<Integer> flux = Flux.fromIterable(List.of(1, 2, 3));
+    void transformOperators() {
+        Integer[] numbers = {1, 2, 3};
 
-        StepVerifier.create(flux)
-                .expectNext(1, 2, 3)
-                .expectComplete()
-                .verify();
-    }
+        Flux<Integer> map = Flux.just(numbers).map(MagicMethods::squere);
+        StepVerifier.create(map).expectNext(1, 4, 9).verifyComplete();
 
-    @Test
-    void fromStream() {
-        Flux<Integer> flux = Flux.fromStream(Stream.of(1, 2, 3));
-
-        StepVerifier.create(flux)
-                .expectNext(1, 2, 3)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void from() {
-        Flux<Integer> flux = Flux.from(Mono.just(1));
-
-        StepVerifier.create(flux)
-                .expectNext(1)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void fromArray() {
-        Flux<Integer> flux = Flux.fromArray(new Integer[] {1,2,3});
-
-        StepVerifier.create(flux)
-                .expectNext(1, 2, 3)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void empty() {
-        Flux<Integer> flux = Flux.empty();
-
-        StepVerifier.create(flux)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void error() {
-        Flux<Integer> flux = Flux.error(Exception::new);
-
-        StepVerifier.create(flux)
-                .expectError()
-                .verify();
-    }
-
-    @Test
-    void map() {
-        Flux<Integer> flux = Flux.just(1, 2, 3)
-                .map(MagicMethods::squere);
-
-        StepVerifier.create(flux)
-                .expectNext(1, 4, 9)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void flatMap() {
-        Flux<Integer> flux = Flux.just(1, 2, 3)
+        Flux<Integer> flatMap = Flux.just(numbers)
                 .flatMap(value -> Flux.fromStream(IntStream.rangeClosed(1, value).boxed()));
+        StepVerifier.create(flatMap).expectNext(1, 1, 2, 1,2,3).verifyComplete();
 
-        StepVerifier.create(flux)
-                .expectNext(1, 1, 2, 1,2,3)
-                .expectComplete()
-                .verify();
-    }
+        Flux<Integer> startWith = Flux.just(numbers).startWith(0);
+        StepVerifier.create(startWith).expectNext(0, 1,2,3).verifyComplete();
 
-    @Test
-    void startWith() {
-        Flux<Integer> flux = Flux.just(1, 2, 3).startWith(0);
+        Mono<List<Integer>> collectList = Flux.just(numbers).collectList();
+        StepVerifier.create(collectList).expectNext(List.of(numbers)).verifyComplete();
 
-        StepVerifier.create(flux)
-                .expectNext(0, 1,2,3)
-                .expectComplete()
-                .verify();
-    }
+        Mono<Boolean> all = Flux.just(numbers).all(number -> number < 5);
+        StepVerifier.create(all).expectNext(true).verifyComplete();
 
-    @Test
-    void collectList() {
-        Mono<List<Integer>> mono = Flux.just(1, 2, 3).collectList();
-
-        StepVerifier.create(mono)
-                .expectNext(List.of(1,2,3))
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void all() {
-        Mono<Boolean> mono = Flux.just(1, 2, 3).all(number -> number < 5);
-
-        StepVerifier.create(mono)
-                .expectNext(true)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void concatWith() {
-        Flux<Integer> flux = Flux.just(1, 2, 3)
+        Flux<Integer> concatWith = Flux.just(numbers)
                 .delayElements(Duration.ofMillis(300))
                 .concatWith(Flux.just(4, 5));
+        StepVerifier.create(concatWith).expectNext(1, 2, 3, 4, 5).verifyComplete();
 
-        StepVerifier.create(flux)
-                .expectNext(1, 2, 3, 4, 5)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void mergeWith() {
-        Flux<Integer> flux = Flux.just(1, 2, 3)
+        Flux<Integer> mergeWith = Flux.just(numbers)
                 .delayElements(Duration.ofMillis(300))
                 .mergeWith(Flux.just(4, 5));
+        StepVerifier.create(mergeWith).expectNext(4,5, 1, 2, 3).verifyComplete();
 
-        StepVerifier.create(flux)
-                .expectNext(4,5, 1, 2, 3)
-                .expectComplete()
-                .verify();
+        Flux<Integer> zip = Flux.zip(Flux.just(numbers), Flux.range(4,3))
+                .map(tuple -> tuple.getT2() + tuple.getT1());
+        StepVerifier.create(zip).expectNext(5,7,9).verifyComplete();
+
+        Flux<Integer> firstWithValue = Flux.firstWithValue(
+                Flux.just(1, 2).delayElements(Duration.ofSeconds(1)),
+                Flux.just(3, 4));
+        StepVerifier.create(firstWithValue).expectNext(3, 4).verifyComplete();
+
+        Flux<Integer> switchIfEmpty = Flux.just(numbers).filter(number -> number > 5)
+                .switchIfEmpty(Flux.just(4, 5));
+        StepVerifier.create(switchIfEmpty).expectNext(4, 5).verifyComplete();
     }
 
     @Test
-    void zip() {
-        Flux<Integer> numbers = Flux.just(1, 2);
-        Flux<String> strings = Flux.just("1", "2");
-        Flux<String> zip = Flux.zip(numbers, strings).map(tuple -> tuple.getT2() + tuple.getT1());
-        StepVerifier.create(zip)
-                .expectNext("11", "22")
-                .expectComplete()
-                .verify();
-    }
+    void peepOperators() {
+        Integer[] numbers = {1, 2, 3};
 
-    @Test
-    void firstWithValue() {
-        Flux<Integer> flux1 = Flux.just(1, 2).delayElements(Duration.ofSeconds(1));
-        Flux<Integer> flux2 = Flux.just(3, 4);
-        Flux<Integer> firstFlux = Flux.firstWithValue(flux1, flux2);
-        StepVerifier.create(firstFlux)
-                .expectNext(3, 4)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void switchIfEmpty() {
-        Flux<Integer> flux = Flux.just(1, 2, 3).filter(number -> number > 5);
-        Flux<Integer> result = flux.switchIfEmpty(Flux.just(4, 5));
-        StepVerifier.create(result)
-                .expectNext(4, 5)
-                .expectComplete()
-                .verify();
-    }
-
-    @Test
-    void doOnSubscribe() {
         AtomicInteger result = new AtomicInteger();
-        Mono<Integer> mono = Mono.just(0).doOnSubscribe(subscription -> result.incrementAndGet());
-        mono.subscribe();
-        mono.subscribe();
-        StepVerifier.create(mono)
-                .expectNext(0)
-                .expectComplete()
-                .verify();
-        Assertions.assertEquals(3, result.intValue());
-    }
+        Mono.just(0).doOnSubscribe(subscription -> result.incrementAndGet()).subscribe();
+        Assertions.assertEquals(1, result.intValue());
 
-    @Test
-    void doOnNext() {
-        AtomicInteger result = new AtomicInteger();
-        Flux<Integer> flux = Flux.just(1, 2, 3).doOnNext(result::addAndGet);
-        StepVerifier.create(flux).expectNextCount(3).verifyComplete();
+        result.set(0);
+        Flux.just(numbers).doOnNext(result::addAndGet).subscribe();
         Assertions.assertEquals(6, result.intValue());
-    }
 
-    @Test
-    void doOnError() {
         AtomicBoolean error = new AtomicBoolean();
-        Flux<?> flux = Flux.just(1, 2, 3)
+        Flux.just(numbers)
                 .skip(2)
                 .flatMap(ignore -> Mono.error(RuntimeException::new))
-                .doOnError(throwable -> error.set(true));
-        StepVerifier.create(flux).expectError().verify();
+                .doOnError(throwable -> error.set(true))
+                .subscribe();
         Assertions.assertTrue(error.get());
+
+        Flux<Integer> flux = Flux.just(numbers).log();
+        StepVerifier.create(flux).expectNextCount(3).verifyComplete();
     }
 
     @Test
-    void log() {
-        Flux<Integer> flux = Flux.just(1,2,3).log();
-        StepVerifier.create(flux)
-                .expectNextCount(3)
+    void filterOperators() {
+        Flux<Integer> filter = Flux.range(1, 10).filter(MagicMethods::isPrime);
+        StepVerifier.create(filter).expectNext(2,3,5, 7).verifyComplete();
+
+        Flux<Integer> distinct = Flux.just(1, 2, 3, 2, 2, 1).distinct();
+        StepVerifier.create(distinct).expectNext(1, 2, 3).verifyComplete();
+
+        Flux<Integer> take = Flux.range(1, 100).take(5);
+        StepVerifier.create(take).expectNext(1, 2, 3, 4, 5).verifyComplete();
+
+        Flux<Integer> skip = Flux.range(1, 10).skip(5);
+        StepVerifier.create(skip).expectNext(6, 7, 8, 9, 10).verifyComplete();
+    }
+
+    @Test
+    void handleErrorOperators() {
+        Integer[] numbers = {1, 2, 3};
+
+        Flux<Integer> onErrorReturn = Flux.just(numbers)
+                .concatWith(Flux.error(IllegalArgumentException::new))
+                .onErrorReturn(IllegalArgumentException.class, 4);
+        StepVerifier.create(onErrorReturn).expectNext(1, 2, 3, 4).verifyComplete();
+
+        Flux<Integer> onErrorResume = Flux.just(numbers)
+                .concatWith(Flux.error(Exception::new))
+                .onErrorResume(e -> Flux.just(4, 5, 6));
+        StepVerifier.create(onErrorResume).expectNext(1, 2, 3, 4, 5, 6).verifyComplete();
+
+        Flux<Integer> onErrorMap = Flux.just(numbers)
+                .concatWith(Flux.error(IllegalArgumentException::new))
+                .onErrorMap(IllegalArgumentException.class, e -> new IllegalStateException());
+        StepVerifier.create(onErrorMap).expectNext(numbers).expectError().verify();
+
+        AtomicBoolean finallyExecuted = new AtomicBoolean();
+        Flux<Integer> doFinally = Flux.just(numbers)
+                .concatWith(Mono.error(Exception::new))
+                .doFinally(signalType -> finallyExecuted.set(true));
+        StepVerifier.create(doFinally).expectNext(numbers).expectError().verify();
+        Assertions.assertTrue(finallyExecuted.get());
+
+        AtomicBoolean cleanupExecuted = new AtomicBoolean();
+
+        Flux<Integer> using = Flux.using(
+                () -> "ignore",
+                file -> Flux.just(numbers),
+                file -> cleanupExecuted.set(true));
+        StepVerifier.create(using).expectNext(numbers).verifyComplete();
+        Assertions.assertTrue(cleanupExecuted.get());
+    }
+
+
+    @Test
+    void timeOperators() {
+        Integer[] numbers = {1, 2, 3};
+
+        Flux<Integer> delayElements = Flux.just(numbers).delayElements(Duration.ofSeconds(1));
+        StepVerifier.create(delayElements).expectNextCount(3).verifyComplete();
+
+        Flux<Integer> timeout = Flux.just(numbers)
+                .delayElements(Duration.ofSeconds(1))
+                .mergeWith(Flux.just(4).delayElements(Duration.ofSeconds(6)))
+                .timeout(Duration.ofSeconds(2));
+        StepVerifier.create(timeout).expectNextCount(3).expectError().verify();
+
+        Flux<Timed<Integer>> timed = Flux.just(numbers).delayElements(Duration.ofSeconds(1)).timed();
+        StepVerifier.create(timed).expectNextCount(3).verifyComplete();
+
+        Flux<Long> flux = Flux.interval(Duration.ofSeconds(1)).take(3);
+        StepVerifier.create(flux).expectNext(0L, 1L, 2L).verifyComplete();
+    }
+
+    @Test
+    void scan() {
+        Flux<Integer> mono = Flux.just("a", "b", "c")
+                .map(s -> 1)
+                .scan(0, Integer::sum);
+
+        StepVerifier.create(mono)
+                .expectNext(0,1,2,3)
                 .verifyComplete();
     }
 
+    @Test
+    void reduce() {
+        Mono<Integer> flux = Flux.just("a", "b", "c")
+                .map(s -> 1)
+                .reduce(0, Integer::sum);
 
+        StepVerifier.create(flux)
+                .expectNext(3)
+                .verifyComplete();
+    }
+
+    @Test
+    void splitOperators() {
+        Flux<Flux<Integer>> window = Flux.range(1, 10).window(3);
+        StepVerifier.create(window).expectNextCount(4).verifyComplete();
+
+        Flux<Flux<Integer>> windowDuration = Flux.range(1, 10)
+                .delayElements(Duration.ofSeconds(1))
+                .window(Duration.ofSeconds(3));
+        StepVerifier.create(windowDuration).expectNextCount(4).verifyComplete();
+
+        Flux<List<Integer>> buffer = Flux.range(1, 10).buffer(3);
+        StepVerifier.create(buffer).expectNextCount(4).verifyComplete();
+
+        Flux<List<Integer>> bufferDuration = Flux.range(1, 10)
+                .delayElements(Duration.ofSeconds(1))
+                .buffer(Duration.ofSeconds(3));
+        StepVerifier.create(bufferDuration).expectNextCount(4).verifyComplete();
+    }
 }

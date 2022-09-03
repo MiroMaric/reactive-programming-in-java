@@ -30,8 +30,7 @@ import static rs.miromaric.plutus.wallet.data.WalletTestData.MIRO_WALLET;
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = {WalletConfig.class})
-@TestPropertySource("classpath:application-test.properties")
-public class WalletServiceImplTest {
+class WalletServiceImplTest {
 
     @Container
     @SuppressWarnings("unused")
