@@ -1,7 +1,0 @@
-rs/miromaric/plutus/user/model/ImmutableSystemUser.class
-rs/miromaric/plutus/user/model/ImmutableSystemUser$Json.class
-rs/miromaric/plutus/user/exception/SystemUserNotFoundException.class
-rs/miromaric/plutus/user/model/ImmutableSystemUser$Builder.class
-rs/miromaric/plutus/user/service/SystemUserService.class
-rs/miromaric/plutus/user/model/SystemUser.class
-rs/miromaric/plutus/user/model/ImmutableSystemUser$InitShim.class
