@@ -27,6 +27,7 @@ import rs.miromaric.plutus.wallet.model.payout.WPayOutRequest;
 import rs.miromaric.plutus.wallet.model.payout.WPayOutStatus;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,62 +40,47 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Mono<PayInResponse> payIn(PayInRequest payInRequest) {
-        final String merchantRefUuid = "merchantRefUuid";
-        final String plutusAccountId = "plutusAccountId";
+        final String merchantRefUuid = UUID.randomUUID().toString();
 
+        Mono<PayInResponse> failedResponse = Mono.just(PayInResponse.of(merchantRefUuid, PayInStatus.FAILED));
         return Mono.zip(systemUserApi.get(payInRequest.getUserId()), walletApi.get(payInRequest.getWalletId()))
                 .flatMap(data -> {
-                    log.debug(data.toString());
-                    System.out.println(data);
                     SystemUser systemUser = data.getT1();
                     Wallet wallet = data.getT2();
                     Optional<PayInStatus> payInStatus = checkPayInValidityOfUserAndHisWallet(systemUser, wallet);
-                    log.debug(payInStatus.toString());
-                    System.out.println(payInStatus);
                     if (payInStatus.isPresent()) {
                         return Mono.just(PayInResponse.of(merchantRefUuid, payInStatus.get()));
                     }
 
-                    DebitRequest debitRequest = ImmutableDebitRequest
-                            .builder()
-                            .accountId(plutusAccountId)
-                            .merchantRefNum(merchantRefUuid)
-                            .amount(payInRequest.getAmount())
-                            .token(payInRequest.getToken())
-                            .build();
-
+                    DebitRequest debitRequest = createDebitRequest(payInRequest, merchantRefUuid);
                     return paymentProviderApi.debit(debitRequest)
-                            .flatMap(debitResponse -> {
-                                log.debug(debitResponse.toString());
-                                System.out.println(debitResponse);
-                                if (debitResponse.getStatus().equals(DebitStatus.COMPLETED)) {
-                                    return walletApi.payIn(wallet.getUuid(), WPayInRequest.of(wallet.getUuid(), payInRequest.getAmount()))
-                                            .map(wPayInResponse -> {
-                                                log.debug(wPayInResponse.toString());
-                                                System.out.println(wPayInResponse);
-                                                if (wPayInResponse.getStatus().equals(WPayInStatus.COMPLETED)) {
-                                                    return PayInResponse.of(merchantRefUuid, PayInStatus.COMPLETED);
-                                                }
-                                                return PayInResponse.of(merchantRefUuid, PayInStatus.FAILED);
-                                            });
-                                } else {
-                                    return Mono.just(PayInResponse.of(merchantRefUuid, PayInStatus.FAILED));
-                                }
-                            });
-                }).onErrorResume(throwable -> {
-                    log.error(throwable.toString(), throwable);
-                    return Mono.just(PayInResponse.of(merchantRefUuid, PayInStatus.FAILED));
-                });
+                            .filter(debitResponse -> debitResponse.getStatus().equals(DebitStatus.COMPLETED))
+                            .flatMap(debitResponse ->
+                                walletApi.payIn(wallet.getUuid(), WPayInRequest.of(wallet.getUuid(), payInRequest.getAmount()))
+                                        .filter(wPayInResponse -> wPayInResponse.getStatus().equals(WPayInStatus.COMPLETED))
+                                        .map(wPayInResponse -> PayInResponse.of(merchantRefUuid, PayInStatus.COMPLETED))
+                                        .switchIfEmpty(failedResponse)
+                            ).switchIfEmpty(failedResponse);
+                }).onErrorResume(throwable -> failedResponse);
+    }
+
+    private ImmutableDebitRequest createDebitRequest(PayInRequest payInRequest, String merchantRefUuid) {
+        return ImmutableDebitRequest
+                .builder()
+                .accountId(PayInRequest.PLUTUS_ACCOUNT_ID)
+                .merchantRefNum(merchantRefUuid)
+                .amount(payInRequest.getAmount())
+                .token(payInRequest.getToken())
+                .build();
     }
 
     @Override
     public Mono<PayOutResponse> payOut(PayOutRequest payOutRequest) {
-        final String merchantRefUuid = "merchantRefUuid";
-        final String plutusAccountId = "plutusAccountId";
+        final String merchantRefUuid = UUID.randomUUID().toString();
 
+        Mono<PayOutResponse> failedResponse = Mono.just(PayOutResponse.of(merchantRefUuid, PayOutStatus.FAILED));
         return Mono.zip(systemUserApi.get(payOutRequest.getUserId()), walletApi.get(payOutRequest.getWalletId()))
                 .flatMap(data -> {
-                    log.debug(data.toString());
                     SystemUser systemUser = data.getT1();
                     Wallet wallet = data.getT2();
                     Optional<PayOutStatus> payOutStatus = checkPayOutValidityOfUserAndHisWallet(systemUser, wallet);
@@ -102,35 +88,26 @@ public class PaymentServiceImpl implements PaymentService {
                         return Mono.just(PayOutResponse.of(merchantRefUuid, payOutStatus.get()));
                     }
 
-                    CreditRequest creditRequest = ImmutableCreditRequest
-                            .builder()
-                            .accountId(plutusAccountId)
-                            .merchantRefNum(merchantRefUuid)
-                            .amount(payOutRequest.getAmount())
-                            .token(payOutRequest.getToken())
-                            .build();
-
+                    CreditRequest creditRequest = createCreditRequest(payOutRequest, merchantRefUuid);
                     return paymentProviderApi.credit(creditRequest)
-                            .flatMap(creditResponse -> {
-                                log.debug(creditResponse.toString());
+                            .filter(creditResponse -> creditResponse.getStatus().equals(CreditStatus.COMPLETED))
+                            .flatMap(creditResponse ->
+                                walletApi.payOut(wallet.getUuid(), WPayOutRequest.of(wallet.getUuid(), payOutRequest.getAmount()))
+                                        .filter(wPayOutResponse -> wPayOutResponse.getStatus().equals(WPayOutStatus.COMPLETED))
+                                        .map(wPayOutResponse -> PayOutResponse.of(merchantRefUuid, PayOutStatus.COMPLETED))
+                                        .switchIfEmpty(failedResponse)
+                            ).switchIfEmpty(failedResponse);
+                }).onErrorResume(throwable -> failedResponse);
+    }
 
-                                if (creditResponse.getStatus().equals(CreditStatus.COMPLETED)) {
-                                    return walletApi.payOut(wallet.getUuid(), WPayOutRequest.of(wallet.getUuid(), payOutRequest.getAmount()))
-                                            .map(wPayOutResponse -> {
-                                                log.debug(wPayOutResponse.toString());
-                                                if (wPayOutResponse.getStatus().equals(WPayOutStatus.COMPLETED)) {
-                                                    return PayOutResponse.of(merchantRefUuid, PayOutStatus.COMPLETED);
-                                                }
-                                                return PayOutResponse.of(merchantRefUuid, PayOutStatus.FAILED);
-                                            });
-                                } else {
-                                    return Mono.just(PayOutResponse.of(merchantRefUuid, PayOutStatus.FAILED));
-                                }
-                            });
-                }).onErrorResume(throwable -> {
-                    log.error(throwable.toString(), throwable);
-                    return Mono.just(PayOutResponse.of(merchantRefUuid, PayOutStatus.FAILED));
-                });
+    private ImmutableCreditRequest createCreditRequest(PayOutRequest payOutRequest, String merchantRefUuid) {
+        return ImmutableCreditRequest
+                .builder()
+                .accountId(payOutRequest.PLUTUS_ACCOUNT_ID)
+                .merchantRefNum(merchantRefUuid)
+                .amount(payOutRequest.getAmount())
+                .token(payOutRequest.getToken())
+                .build();
     }
 
     private Optional<PayInStatus> checkPayInValidityOfUserAndHisWallet(SystemUser systemUser, Wallet wallet) {

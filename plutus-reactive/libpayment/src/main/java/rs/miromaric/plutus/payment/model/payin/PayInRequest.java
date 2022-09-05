@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 @JsonSerialize(as = ImmutablePayInRequest.class)
 @Serial.Version(202107072355659502L)
 public interface PayInRequest {
+    String PLUTUS_ACCOUNT_ID  = "plutusAccountId";
+
     String getUserId();
     String getWalletId();
     String getCurrency();

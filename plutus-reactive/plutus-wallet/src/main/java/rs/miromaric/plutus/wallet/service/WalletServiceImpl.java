@@ -26,7 +26,6 @@ public class WalletServiceImpl implements WalletService {
     private final WalletRepository walletRepository;
 
     @Override
-    //@todo: proveriti korisnika
     public Mono<Wallet> save(Wallet wallet) {
         WalletEntity entity = new WalletEntity(wallet);
         return walletRepository.save(entity).map(WalletEntity::getDefaultDto);
@@ -38,7 +37,6 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    //@todo: proveriti korisnika
     public Mono<Wallet> update(Wallet wallet) {
         return walletRepository.findForReadByUuid(wallet.getUuid())
                 .map(walletEntity -> walletEntity.update(wallet))

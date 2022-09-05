@@ -19,19 +19,22 @@ public class SystemUserServiceImpl implements SystemUserService {
 
     @Override
     public Mono<SystemUser> save(SystemUser user) {
-        return repository.save(new SystemUserEntity(user)).map(SystemUserEntity::getDefaultDto);
+        return repository.save(new SystemUserEntity(user))
+                .map(SystemUserEntity::getDefaultDto);
     }
 
     @Override
     public Mono<SystemUser> get(String uuid) {
-        return repository.findById(uuid).map(SystemUserEntity::getDefaultDto);
+        return repository.findById(uuid)
+                .map(SystemUserEntity::getDefaultDto);
     }
 
     @Override
     public Mono<SystemUser> update(SystemUser user) {
         return repository.findById(user.getUuid())
                 .map(entity -> entity.update(user))
-                .flatMap(entity -> repository.save(entity).map(SystemUserEntity::getDefaultDto));
+                .flatMap(entity -> repository.save(entity)
+                        .map(SystemUserEntity::getDefaultDto));
     }
 
     @Override

@@ -9,10 +9,10 @@ import rs.miromaric.plutus.wallet.entity.WalletEntity;
 @Repository
 public interface WalletRepository extends ReactiveCrudRepository<WalletEntity, String> {
 
-    @Query(value = "SELECT * FROM WALLET WHERE UUID = $1 FOR UPDATE")
+    @Query(value = "SELECT * FROM WALLET WHERE UUID = $1 FOR SHARE")
     Mono<WalletEntity> findForReadByUuid(String uuid);
 
-    @Query(value = "SELECT * FROM WALLET WHERE UUID = $1 FOR SHARE")
+    @Query(value = "SELECT * FROM WALLET WHERE UUID = $1 FOR UPDATE")
     Mono<WalletEntity> findForWriteByUuid(String uuid);
 
 }
