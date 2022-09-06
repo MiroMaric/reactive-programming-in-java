@@ -13,14 +13,14 @@ import rs.miromaric.plutus.provider.model.debit.DebitRequest;
 
 @Slf4j
 @Component
-public class NewDebitRequestReceiver {
+public class DefaultDebitRequestReceiver {
 
     private final ReactiveKafkaConsumerTemplate<String, DebitRequest> kafkaConsumerTemplate;
     private final PaymentProviderProperties properties;
 
-    public NewDebitRequestReceiver(@Qualifier("debitKafkaConsumerTemplate")
+    public DefaultDebitRequestReceiver(@Qualifier("debitKafkaConsumerTemplate")
                                    ReactiveKafkaConsumerTemplate<String, DebitRequest> kafkaConsumerTemplate,
-                                   PaymentProviderProperties properties) {
+                                       PaymentProviderProperties properties) {
         this.kafkaConsumerTemplate = kafkaConsumerTemplate;
         this.properties = properties;
     }
@@ -28,14 +28,17 @@ public class NewDebitRequestReceiver {
     public Flux<DebitRequest> consumeDebitRequests() {
         return kafkaConsumerTemplate
                 .receiveAutoAck()
+                .log()
                 // .delayElements(Duration.ofSeconds(2L)) // BACKPRESSURE
-                .map(ConsumerRecord::value)
-                .doOnNext(debitRequest -> log.info(debitRequest.toString()))
-                .doOnError(throwable -> log.error("error: ", throwable.getMessage()));
+                .map(ConsumerRecord::value);
     }
 
     @EventListener
     public void onContextRefresh(ContextRefreshedEvent event) {
-        this.consumeDebitRequests().subscribe();
+        this.consumeDebitRequests().
+                subscribe(
+                        debitRequest -> log.info(debitRequest.toString()),
+                        throwable -> log.error("error: {}", throwable.getMessage())
+                );
     }
 }

@@ -28,7 +28,7 @@ public class PaymentProviderKafkaConfig {
 
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         ReceiverOptions<String, DebitRequest> receiverOptions = ReceiverOptions.create(props);
-        receiverOptions.subscription(Collections.singletonList(topic));
+        receiverOptions  = receiverOptions.subscription(Collections.singletonList(topic));
         return new ReactiveKafkaConsumerTemplate<>(receiverOptions);
     }
 

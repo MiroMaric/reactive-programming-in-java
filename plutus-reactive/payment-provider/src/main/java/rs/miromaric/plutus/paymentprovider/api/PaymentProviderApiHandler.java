@@ -6,8 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import rs.miromaric.plutus.paymentprovider.stream.sender.DebitResponseSender;
-import rs.miromaric.plutus.paymentprovider.stream.sender.NewDebitResponseSender;
+import rs.miromaric.plutus.paymentprovider.stream.sender.DefaultDebitResponseSender;
 import rs.miromaric.plutus.provider.model.credit.CreditResponse;
 import rs.miromaric.plutus.provider.model.credit.CreditStatus;
 import rs.miromaric.plutus.provider.model.credit.ImmutableCreditResponse;
@@ -25,8 +24,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @RequiredArgsConstructor
 public class PaymentProviderApiHandler {
 
-    //private final DebitResponseSender debitResponseSender;
-    private final NewDebitResponseSender newDebitResponseSender;
+    private final DefaultDebitResponseSender newDebitResponseSender;
 
     Mono<ServerResponse> debit(ServerRequest request) {
         DebitResponse debitResponse = ImmutableDebitResponse
@@ -36,7 +34,6 @@ public class PaymentProviderApiHandler {
                 .status(DebitStatus.COMPLETED)
                 .build();
 
-        //return ok().body(debitResponseSender.sendMessage(debitResponse), DebitResponse.class);
         return ok().body(newDebitResponseSender.sendMessage(debitResponse), DebitResponse.class);
     }
 

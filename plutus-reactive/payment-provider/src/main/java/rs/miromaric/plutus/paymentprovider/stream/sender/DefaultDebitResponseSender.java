@@ -1,20 +1,12 @@
 package rs.miromaric.plutus.paymentprovider.stream.sender;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.kafka.core.reactive.ReactiveKafkaProducerTemplate;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.kafka.sender.SenderRecord;
-import reactor.kafka.sender.SenderResult;
 import rs.miromaric.plutus.paymentprovider.config.PaymentProviderProperties;
-import rs.miromaric.plutus.provider.model.debit.DebitRequest;
 import rs.miromaric.plutus.provider.model.debit.DebitResponse;
 
 import java.text.SimpleDateFormat;
@@ -22,15 +14,15 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class NewDebitResponseSender {
+public class DefaultDebitResponseSender {
 
     private final ReactiveKafkaProducerTemplate<String, DebitResponse> kafkaProducerTemplate;
     private final PaymentProviderProperties providerProperties;
     private final String topic;
 
-    public NewDebitResponseSender(@Qualifier("debitKafkaProducerTemplate")
+    public DefaultDebitResponseSender(@Qualifier("debitKafkaProducerTemplate")
                                   ReactiveKafkaProducerTemplate<String, DebitResponse> kafkaProducerTemplate,
-                                  PaymentProviderProperties providerProperties) {
+                                      PaymentProviderProperties providerProperties) {
 
         this.kafkaProducerTemplate = kafkaProducerTemplate;
         this.providerProperties = providerProperties;
