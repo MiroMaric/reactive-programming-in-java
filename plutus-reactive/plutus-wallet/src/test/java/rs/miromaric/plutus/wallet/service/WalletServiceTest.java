@@ -27,7 +27,7 @@ import static rs.miromaric.plutus.wallet.data.WalletTestData.MIRO_WALLET;
 
 @SpringBootTest
 @Testcontainers
-public class WalletServiceTest {
+class WalletServiceTest {
 
     @Container
     @SuppressWarnings("unused")

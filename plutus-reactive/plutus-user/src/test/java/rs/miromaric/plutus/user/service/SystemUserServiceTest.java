@@ -18,11 +18,12 @@ import static rs.miromaric.plutus.user.data.SystemUserTestData.MIKO;
 
 @SpringBootTest
 @Testcontainers
-public class SystemUserServiceTest {
+class SystemUserServiceTest {
 
     @Container
     @SuppressWarnings("unused")
-    public static PostgreSQLContainer<?> postgreSQLContainer = PlutusPostgreSQLTestContainer.postgreSQLContainer;
+    public static PostgreSQLContainer<?> postgreSQLContainer =
+            PlutusPostgreSQLTestContainer.postgreSQLContainer;
 
     @Autowired
     protected SystemUserDatabaseInitializer systemUserDatabaseInitializer;
@@ -32,12 +33,14 @@ public class SystemUserServiceTest {
 
     @BeforeEach
     public void beforeEach() {
-        StepVerifier.create(systemUserDatabaseInitializer.resetTables()).verifyComplete();
+        StepVerifier.create(systemUserDatabaseInitializer.resetTables())
+                .verifyComplete();
     }
 
     @AfterEach
     public void afterEach() {
-        StepVerifier.create(systemUserDatabaseInitializer.clearTables()).verifyComplete();
+        StepVerifier.create(systemUserDatabaseInitializer.clearTables())
+                .verifyComplete();
     }
 
     @Test
